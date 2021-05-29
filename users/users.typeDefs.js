@@ -1,6 +1,7 @@
-import { gql } from "apollo-server-core";
+import { gql } from "apollo-server";
 
 export default gql`
+  # Result
   type User {
     id: Int!
     firstName: String!
@@ -17,6 +18,7 @@ export default gql`
     error: String
   }
 
+  # Mutation
   type Mutation {
     createAccount(
       firstName: String!

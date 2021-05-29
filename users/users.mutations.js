@@ -1,4 +1,5 @@
 import client from "../client";
+import bcrpyt from "bcrypt";
 
 export default {
   Mutation: {
@@ -6,23 +7,30 @@ export default {
       _,
       { firstName, lastName, username, email, password }
     ) => {
-      // check if username or email are already on DB.
-      const existingUser = await client.user.findFirst({
-        where: {
-          OR: [
-            {
-              username,
-            },
-            {
-              email,
-            },
-          ],
-        },
-      });
-      console.log(existingUser, "-");
-      return;
-      // hash password
-      // save and return the user
+      try {
+        // check if username or email are already on DB.
+        const existingUser = await client.user.findFirst({
+          where: {
+            OR: [
+              {
+                username,
+              },
+              {
+                email,
+              },
+            ],
+          },
+        });
+        if (existingUser) {
+          throw new Error("This username/password is already taken");
+        }
+        const uglyPassword = await bcrpyt.hash(password, 10);
+        return client.user.create({data: {
+          username, email, firstName, lastName, password: uglyPassword
+        }})
+      } catch(e) {
+        return e;
+      }
     },
   },
 };

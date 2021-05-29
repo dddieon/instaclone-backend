@@ -1,5 +1,6 @@
 import client from "../client";
 import bcrpyt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export default {
   Mutation: {
@@ -50,7 +51,12 @@ export default {
           error: "Incorrect password"
         }
       }
+      const token = await jwt.sign({id: user.id}, process.env.SECRET_KEY);
       // 3.issue a token -> user
+      return {
+        ok: true,
+        token
+      }
     }
   },
 };

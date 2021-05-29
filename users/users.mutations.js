@@ -3,10 +3,7 @@ import bcrpyt from "bcrypt";
 
 export default {
   Mutation: {
-    createAccount: async (
-      _,
-      { firstName, lastName, username, email, password }
-    ) => {
+    createAccount: async (_, { firstName, lastName, username, email, password }) => {
       try {
         // check if username or email are already on DB.
         const existingUser = await client.user.findFirst({
@@ -32,5 +29,28 @@ export default {
         return e;
       }
     },
+    login: async (_, {username, password}) => {
+      // 1. find user with args.username
+      const user = await client.user.findFirst({
+        where: {
+          username
+        }
+      })
+      if (!user) {
+        return ({
+          ok: false,
+          error: "User not found"
+          })
+      }
+      // 2. hash check ( args.password === DB password)
+      const passwordOk = await bcrpyt.compare(password, user.password);
+      if (!passwordOk) {
+        return {
+          ok: false,
+          error: "Incorrect password"
+        }
+      }
+      // 3.issue a token -> user
+    }
   },
 };
